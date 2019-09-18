@@ -3,8 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "serve": "vue-cli-service serve",
-    "build": "vue-cli-service build",
+    "serve": "vue-cli-service electron:serve",
+    "build": "vue-cli-service electron:build",
     "lint": "vue-cli-service lint",
     "electron:build": "vue-cli-service electron:build",
     "electron:serve": "vue-cli-service electron:serve",
@@ -14,7 +14,11 @@
   },
   "main": "background.js",
   "dependencies": {
+    "@mdi/font": "*",
+    "electron-store": "^5.0.0",
+    "roboto-fontface": "*",
     "vue": "^2.6.10",
+    "vuetify": "^2.0.0",
     "vuex": "^3.0.1"
   },
   "devDependencies": {
@@ -28,6 +32,7 @@
     "eslint": "^5.16.0",
     "eslint-plugin-vue": "^5.0.0",
     "vue-cli-plugin-electron-builder": "^1.4.0",
+    "vue-cli-plugin-vuetify": "^0.6.3",
     "vue-template-compiler": "^2.6.10"
   }
 }

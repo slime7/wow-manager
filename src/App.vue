@@ -1,28 +1,116 @@
 <template>
-  <div id="app">
-    <img alt="Vue logo" src="./assets/logo.png">
-    <HelloWorld msg="Welcome to Your Vue.js App"/>
-  </div>
+  <v-app fluid id="app">
+    <v-system-bar fixed app class="system-bar pa-0">
+      <v-spacer></v-spacer>
+      <window-controls :is-maximize="isMaximize"></window-controls>
+    </v-system-bar>
+
+    <v-content style="height: 100vh">
+      <app-main/>
+    </v-content>
+  </v-app>
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld.vue';
+import { remote } from 'electron';
+import WindowControls from '@/components/WindowControls.vue';
+import AppMain from '@/components/AppMain.vue';
 
 export default {
   name: 'app',
+
   components: {
-    HelloWorld,
+    WindowControls,
+    AppMain,
+  },
+
+  data: () => ({
+    isMaximize: false,
+    gamePath: null,
+  }),
+
+  methods: {
+    onMaximizeStatusChange() {
+      this.$ipcRenderer.on('set-maximize-status', (maximize) => {
+        this.isMaximize = maximize;
+      });
+    },
+    onSelectGamePath() {
+      this.$ipcRenderer.on('select-game-path', (isSuccess) => {
+        const gamePath = remote.getGlobal('gamePath');
+        if (isSuccess && gamePath) {
+          this.gamePath = gamePath;
+        }
+      });
+    },
+    onMounted() {
+      this.onMaximizeStatusChange();
+      this.onSelectGamePath();
+    },
+    onUnmounted() {
+      this.$ipcRenderer.detach('set-maximize-status');
+    },
+  },
+
+  mounted() {
+    this.onMounted();
+  },
+
+  destroyed() {
+    this.onUnmounted();
   },
 };
 </script>
 
 <style>
-#app {
-  font-family: 'Avenir', Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
-}
+  @font-face {
+    font-family: 'Source Code Pro2';
+    src: url('./assets/SourceCodePro-Regular.ttf');
+  }
+
+  html {
+    overflow-y: auto !important;
+  }
+
+  .system-bar {
+    -webkit-app-region: drag;
+  }
+
+  #app {
+    font-family: "Roboto", "Noto Sans CJK SC", "Microsoft YaHei", "微软雅黑", sans-serif;
+  }
+
+  #app pre {
+    font-family: "Source Code Pro";
+    margin: 0;
+    user-select: text;
+  }
+
+  ::-webkit-scrollbar {
+    height: 6px;
+    width: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background-color: #6e6e6e;
+    outline: 1px solid #333;
+  }
+
+  textarea::-webkit-scrollbar {
+    height: 4px;
+    width: 4px;
+  }
+
+  textarea::-webkit-scrollbar-track {
+    -webkit-box-shadow: inset 0 0 4px rgba(0, 0, 0, 0.3);
+  }
+
+  textarea::-webkit-scrollbar-thumb {
+    background-color: #6e6e6e;
+    outline: 1px solid #708090;
+  }
 </style>

@@ -1,38 +1,98 @@
-'use strict'
-
-import { app, protocol, BrowserWindow } from 'electron'
+import {
+  app, ipcMain, protocol, BrowserWindow,
+  screen,
+} from 'electron';
 import {
   createProtocol,
-  installVueDevtools
-} from 'vue-cli-plugin-electron-builder/lib'
-const isDevelopment = process.env.NODE_ENV !== 'production'
+  installVueDevtools,
+} from 'vue-cli-plugin-electron-builder/lib';
+import './utils/global';
+import Ipc from './Ipc';
+
+const isDevelopment = process.env.NODE_ENV !== 'production';
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
-let win
+let win;
 
 // Scheme must be registered before the app is ready
-protocol.registerSchemesAsPrivileged([{scheme: 'app', privileges: { secure: true, standard: true } }])
+protocol.registerSchemesAsPrivileged([{
+  scheme: 'app',
+  privileges: { secure: true, standard: true },
+}]);
 
-function createWindow () {
+function createWindow() {
+  const { workArea } = screen.getPrimaryDisplay();
+  const defaultWin = {
+    x: workArea.width / 2 - 200,
+    y: workArea.height / 2 - 300,
+    width: 900,
+    height: 600,
+    maximize: false,
+  };
+  if (defaultWin.y < 0) {
+    defaultWin.y = 0;
+  }
+  let {
+    x,
+    y,
+    width,
+    height,
+    maximize,
+  } = global.store.get('window', defaultWin);
   // Create the browser window.
-  win = new BrowserWindow({ width: 800, height: 600, webPreferences: {
-    nodeIntegration: true
-  } })
+  win = new BrowserWindow({
+    x,
+    y,
+    width,
+    height,
+    frame: false,
+    minWidth: 400,
+    webPreferences: {
+      nodeIntegration: true,
+    },
+  });
+  global.win = win;
+  const ipc = new Ipc(ipcMain, win.webContents);
+
+  win.on('maximize', () => {
+    maximize = true;
+    ipc.sendToClient('set-maximize-status', true);
+  });
+
+  win.on('unmaximize', () => {
+    maximize = false;
+    ipc.sendToClient('set-maximize-status', false);
+  });
 
   if (process.env.WEBPACK_DEV_SERVER_URL) {
     // Load the url of the dev server if in development mode
-    win.loadURL(process.env.WEBPACK_DEV_SERVER_URL)
-    if (!process.env.IS_TEST) win.webContents.openDevTools()
+    win.loadURL(process.env.WEBPACK_DEV_SERVER_URL);
+    if (!process.env.IS_TEST) win.webContents.openDevTools();
   } else {
-    createProtocol('app')
+    createProtocol('app');
     // Load the index.html when not in development
-    win.loadURL('app://./index.html')
+    win.loadURL('app://./index.html');
   }
 
+  win.on('close', () => {
+    if (!maximize) {
+      const pos = win.getPosition();
+      const size = win.getSize();
+      [x, y, width, height] = [...pos, ...size];
+    }
+    global.store.set('window', {
+      x,
+      y,
+      width,
+      height,
+      maximize,
+    });
+  });
+
   win.on('closed', () => {
-    win = null
-  })
+    win = null;
+  });
 }
 
 // Quit when all windows are closed.
@@ -40,17 +100,17 @@ app.on('window-all-closed', () => {
   // On macOS it is common for applications and their menu bar
   // to stay active until the user quits explicitly with Cmd + Q
   if (process.platform !== 'darwin') {
-    app.quit()
+    app.quit();
   }
-})
+});
 
 app.on('activate', () => {
   // On macOS it's common to re-create a window in the app when the
   // dock icon is clicked and there are no other windows open.
   if (win === null) {
-    createWindow()
+    createWindow();
   }
-})
+});
 
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
@@ -63,27 +123,26 @@ app.on('ready', async () => {
     // Electron will not launch with Devtools extensions installed on Windows 10 with dark mode
     // If you are not using Windows 10 dark mode, you may uncomment these lines
     // In addition, if the linked issue is closed, you can upgrade electron and uncomment these lines
-    // try {
-    //   await installVueDevtools()
-    // } catch (e) {
-    //   console.error('Vue Devtools failed to install:', e.toString())
-    // }
-
+    try {
+      await installVueDevtools();
+    } catch (e) {
+      console.error('Vue Devtools failed to install:', e.toString());
+    }
   }
-  createWindow()
-})
+  createWindow();
+});
 
 // Exit cleanly on request from parent process in development mode.
 if (isDevelopment) {
   if (process.platform === 'win32') {
-    process.on('message', data => {
+    process.on('message', (data) => {
       if (data === 'graceful-exit') {
-        app.quit()
+        app.quit();
       }
-    })
+    });
   } else {
     process.on('SIGTERM', () => {
-      app.quit()
-    })
+      app.quit();
+    });
   }
 }
