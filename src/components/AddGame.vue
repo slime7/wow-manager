@@ -42,7 +42,7 @@
               ></v-text-field>
             </div>
 
-            <div>
+            <div class="mb-1">
               <v-btn color="primary" @click="submitGamePath">继续</v-btn>
             </div>
           </v-stepper-content>
@@ -50,25 +50,31 @@
           <v-stepper-content step="2">
             <div>
               <v-select
-                :items="gameTypes"
+                :items="gameTypeItems"
                 filled
                 label="游戏类型"
                 v-model="gameType"
               ></v-select>
             </div>
 
-            <div>
+            <div class="mb-1">
               <v-btn color="primary" @click="submitGameType">继续</v-btn>
             </div>
           </v-stepper-content>
 
           <v-stepper-content step="3">
             <div v-if="gameType">
-              <p>{{gameBase}}</p>
-              <p>{{gameTypes.find(t => t.value === gameType).text}}</p>
+              <div>{{gameBase}}</div>
+              <div>{{gameTypes[gameType]}}</div>
+
+              <v-text-field
+                label="起名"
+                filled
+                v-model="gameInstanceName"
+              ></v-text-field>
             </div>
 
-            <div>
+            <div class="mb-1">
               <v-btn color="primary" @click="submitAddGame">完成</v-btn>
               <v-btn class="ml-2" @click="reset">重新选择</v-btn>
             </div>
@@ -81,6 +87,7 @@
 
 <script>
 import Store from 'electron-store';
+import { gameTypes, storeSetting } from '@/utils/constants';
 
 export default {
   name: 'AddGame',
@@ -93,14 +100,17 @@ export default {
   },
 
   data: () => ({
-    gameTypes: [
-      { text: '怀旧服', value: 'classic' },
-      { text: '正式服', value: 'retail' },
+    gameTypes,
+    gameTypeItems: [
+      { text: gameTypes.classic, value: 'classic' },
+      { text: gameTypes.retail, value: 'retail' },
     ],
+    gamesStoreOld: null,
     addGameStep: 1,
     gameType: null,
     gameBase: '',
     gamePathSelectorError: false,
+    gameInstanceName: '',
   }),
 
   methods: {
@@ -149,21 +159,37 @@ export default {
     submitGameType() {
       if (this.gameType) {
         this.addGameStep = 3;
+        this.gameInstanceNameGenerator();
       }
     },
     submitAddGame() {
-      const store = new Store();
-      const oldGames = store.get('gameInstances', { current: null, games: [] });
-      const newGames = Object.assign({}, oldGames);
+      const store = new Store(storeSetting);
+      const newGames = Object.assign({}, this.gamesStoreOld);
       newGames.games.push({
+        name: this.gameInstanceName,
         path: this.gameBase,
         type: this.gameType,
-        addOns: [],
+        addons: [],
       });
       newGames.current = newGames.games.length - 1;
       store.set('gameInstances', newGames);
       this.$parent.readGameSetting();
     },
+    gameInstanceNameGenerator() {
+      const name = `wow ${this.gameTypes[this.gameType]}`;
+      if (this.gamesStoreOld.games.length) {
+        const dup = this.gamesStoreOld.games.find(g => g.name === `${name} 1`);
+        if (dup) {
+          const num = +dup.name.match(/ (\d+)$/)[1];
+          this.gameInstanceName = `${name} ${num + 1}`;
+        }
+      }
+      this.gameInstanceName = `${name} 1`;
+    },
+  },
+  mounted() {
+    const store = new Store(storeSetting);
+    this.gamesStoreOld = store.get('gameInstances', { current: null, games: [] });
   },
 };
 </script>

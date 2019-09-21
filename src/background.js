@@ -50,6 +50,7 @@ function createWindow() {
     minWidth: 400,
     webPreferences: {
       nodeIntegration: true,
+      webSecurity: false,
     },
   });
   global.win = win;

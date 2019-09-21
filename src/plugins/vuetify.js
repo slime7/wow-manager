@@ -11,6 +11,6 @@ export default new Vuetify({
     current: 'zh-Hans',
   },
   icons: {
-    iconfont: 'mdi',
+    iconfont: 'md',
   },
 });

@@ -102,4 +102,9 @@ export default {
     background-color: #6e6e6e;
     outline: 1px solid #708090;
   }
+
+  #app .flex-scroll-y {
+    overflow-y: auto;
+    min-height: 0;
+  }
 </style>

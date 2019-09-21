@@ -14,8 +14,10 @@
   },
   "main": "background.js",
   "dependencies": {
-    "@mdi/font": "*",
+    "electron-dl": "^1.14.0",
     "electron-store": "^5.0.0",
+    "extract-zip": "^1.6.7",
+    "material-design-icons-iconfont": "*",
     "roboto-fontface": "*",
     "vue": "^2.6.10",
     "vuetify": "^2.0.0",
