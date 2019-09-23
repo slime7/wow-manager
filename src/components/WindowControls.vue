@@ -1,50 +1,50 @@
 <template>
   <div class="window-controls">
-    <v-layout fill-height>
+    <div class="d-flex flex-row fill-height">
       <div class="window-control-btn" @click="appMinimize">
-        <v-layout align-center justify-center fill-height>
+        <div class="d-flex flex-column justify-center align-center fill-height">
           <svg width='11' height='11' viewBox='0 0 11 11' fill='none'
                xmlns='http://www.w3.org/2000/svg'>
             <path
               :d='icon.minimize'
               fill='#000'/>
           </svg>
-        </v-layout>
+        </div>
       </div>
 
       <div class="window-control-btn" v-show="isMaximize" @click="appUnmaximize">
-        <v-layout align-center justify-center fill-height>
+        <div class="d-flex flex-column justify-center align-center fill-height">
           <svg width='11' height='11' viewBox='0 0 11 11' fill='none'
                xmlns='http://www.w3.org/2000/svg'>
             <path
               :d='icon.unmaximize'
               fill='#000'/>
           </svg>
-        </v-layout>
+        </div>
       </div>
 
       <div class="window-control-btn" v-show="!isMaximize" @click="appMaximize">
-        <v-layout align-center justify-center fill-height>
+        <div class="d-flex flex-column justify-center align-center fill-height">
           <svg width='11' height='11' viewBox='0 0 11 11' fill='none'
                xmlns='http://www.w3.org/2000/svg'>
             <path
               :d='icon.maximize'
               fill='#000'/>
           </svg>
-        </v-layout>
+        </div>
       </div>
 
       <div class="window-control-btn close" @click="appClose">
-        <v-layout align-center justify-center fill-height>
+        <div class="d-flex flex-column justify-center align-center fill-height">
           <svg width='11' height='11' viewBox='0 0 11 11' fill='none'
                xmlns='http://www.w3.org/2000/svg'>
             <path
               :d='icon.close'
               fill='#000'/>
           </svg>
-        </v-layout>
+        </div>
       </div>
-    </v-layout>
+    </div>
   </div>
 </template>
 

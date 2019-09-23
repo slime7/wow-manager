@@ -55,7 +55,12 @@ const ipcHandler = ipc => ({
           //
         } else {
           fs.unlink(addonFile, () => {});
-          game.addons.push(addon);
+          const addonInd = game.addons.findIndex(a => a.id === addon.id);
+          if (addonInd !== -1) {
+            game.addons[addonInd] = addon;
+          } else {
+            game.addons.push(addon);
+          }
           global.store.set('gameInstances.games', instances.games);
           ipc.sendToClient('install-addon-done');
         }

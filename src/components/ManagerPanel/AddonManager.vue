@@ -6,7 +6,7 @@
     <v-card-text>
       <v-text-field
         v-model="search"
-        :prepend-icon="searchResult.length ? 'arrow_back' : ''"
+        :prepend-icon="search !== '' ? 'arrow_back' : ''"
         @click:prepend="clearSearch"
         solo
         clearable
@@ -16,11 +16,16 @@
         type="text"
       ></v-text-field>
 
-      <installed-addons :addons="game.addons" v-if="!searchMode"/>
+      <installed-addons
+        :addons="game.addons"
+        :gameVersion="gameVersion"
+        v-if="!searchMode"
+      />
 
       <searching-addons
         :searchResult="searchResult"
-        :game="game"
+        :addons="game.addons"
+        :gameVersion="gameVersion"
         v-else
       />
     </v-card-text>
@@ -55,6 +60,12 @@ export default {
     searchMode: false,
   }),
 
+  computed: {
+    gameVersion() {
+      return gameVersions[this.game.type];
+    },
+  },
+
   watch: {
     search() {
       this.debouncedAddonSearch();
@@ -70,7 +81,7 @@ export default {
       this.loading = true;
       this.searchMode = true;
 
-      fetch(`${curseBaseUrl}search?gameId=1&gameVersion=${gameVersions[this.game.type]}&searchFilter=${this.search}`)
+      fetch(`${curseBaseUrl}search?gameId=1&gameVersion=${this.gameVersion}&searchFilter=${this.search}`)
         .then(res => res.json())
         .then((res) => {
           this.searchResult = res;

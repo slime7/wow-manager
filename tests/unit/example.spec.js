@@ -13,9 +13,6 @@ describe('WindowControls.vue', () => {
     wrapper = shallowMount(WindowControls, {
       localVue,
       vuetify,
-      stubs: {
-        VLayout: '<div></div>',
-      },
     });
   });
 

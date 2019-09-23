@@ -13,3 +13,10 @@ export const storeSetting = {
 };
 
 export const curseBaseUrl = 'https://addons-ecs.forgesvc.net/api/v2/addon/';
+
+export const addonStatusStruct = {
+  NOT_INSTALLED: 0,
+  INSTALLED: 1,
+  CAN_BE_UPDATE: 2,
+  NO_FILE: 9,
+};

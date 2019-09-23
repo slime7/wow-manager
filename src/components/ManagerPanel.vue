@@ -1,5 +1,5 @@
 <template>
-  <v-layout column fill-height class="manager-panel">
+  <div class="d-flex flex-column fill-height manager-panel">
     <div>
       <v-tabs v-model="tab">
         <v-tab>信息</v-tab>
@@ -9,7 +9,7 @@
 
     <v-divider></v-divider>
 
-    <v-flex class="flex-scroll-y">
+    <div class="flex flex-scroll-y">
       <v-tabs-items v-model="tab" class="fill-height">
         <v-tab-item>
           <v-card
@@ -28,8 +28,8 @@
           <addon-manager :game="game"/>
         </v-tab-item>
       </v-tabs-items>
-    </v-flex>
-  </v-layout>
+    </div>
+  </div>
 </template>
 
 <script>

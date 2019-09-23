@@ -1,10 +1,10 @@
 <template>
   <div class="app-main">
-    <v-layout column fill-height>
-      <v-flex class="content">
+    <div class="d-flex flex-column fill-height">
+      <div class="flex content">
         <add-game v-if="!games.games.length" :selectedGamePath="selectedGamePath"/>
 
-        <v-layout v-else fill-height>
+        <div v-else class="d-flex flex-row fill-height">
           <v-navigation-drawer
             permanent
             stateless
@@ -41,7 +41,7 @@
 
                 <v-list-item-content>
                   <v-list-item-title>
-                    {{index + 1}}.{{gameTypes[game.type]}}
+                    {{game.name}}
                   </v-list-item-title>
 
                   <v-list-item-subtitle>
@@ -52,12 +52,12 @@
             </v-list>
           </v-navigation-drawer>
 
-          <v-flex>
+          <div class="flex">
             <manager-panel :game="games.games[games.current]" v-if="games.current !== null"/>
-          </v-flex>
-        </v-layout>
-      </v-flex>
-    </v-layout>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
