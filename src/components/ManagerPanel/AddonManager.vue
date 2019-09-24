@@ -6,7 +6,7 @@
     <v-card-text>
       <v-text-field
         v-model="search"
-        :prepend-icon="search !== '' ? 'arrow_back' : ''"
+        :prepend-icon="searchMode ? 'arrow_back' : ''"
         @click:prepend="clearSearch"
         solo
         clearable
@@ -17,15 +17,11 @@
       ></v-text-field>
 
       <installed-addons
-        :addons="game.addons"
-        :gameVersion="gameVersion"
         v-if="!searchMode"
       />
 
       <searching-addons
         :searchResult="searchResult"
-        :addons="game.addons"
-        :gameVersion="gameVersion"
         v-else
       />
     </v-card-text>
@@ -33,7 +29,8 @@
 </template>
 
 <script>
-import { gameVersions, curseBaseUrl } from '@/utils/constants';
+import { mapGetters } from 'vuex';
+import { curseBaseUrl } from '@/utils/constants';
 import InstalledAddons from '@/components/ManagerPanel/installedAddons.vue';
 import SearchingAddons from '@/components/ManagerPanel/searchingAddons.vue';
 
@@ -45,13 +42,6 @@ export default {
     InstalledAddons,
   },
 
-  props: {
-    game: {
-      type: Object,
-      required: true,
-    },
-  },
-
   data: () => ({
     search: '',
     searchTimeId: null,
@@ -61,9 +51,9 @@ export default {
   }),
 
   computed: {
-    gameVersion() {
-      return gameVersions[this.game.type];
-    },
+    ...mapGetters([
+      'currentGameVersion',
+    ]),
   },
 
   watch: {
@@ -74,14 +64,14 @@ export default {
 
   methods: {
     addonSearch() {
-      if (this.search === '') return;
+      if (!this.search || this.search === '') return;
 
       if (this.loading) return;
 
       this.loading = true;
       this.searchMode = true;
 
-      fetch(`${curseBaseUrl}search?gameId=1&gameVersion=${this.gameVersion}&searchFilter=${this.search}`)
+      fetch(`${curseBaseUrl}search?gameId=1&gameVersion=${this.currentGameVersion}&searchFilter=${this.search}`)
         .then(res => res.json())
         .then((res) => {
           this.searchResult = res;

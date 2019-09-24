@@ -45,6 +45,16 @@
             color="primary"
             v-show="addon.file && addonStatus === addonStatusStruct.INSTALLED"
           >
+            已安装
+          </v-btn>
+
+          <v-btn
+            small
+            outlined
+            disabled
+            color="primary"
+            v-show="addon.file && addonStatus === addonStatusStruct.NO_UPDATE"
+          >
             最新版
           </v-btn>
 
@@ -81,20 +91,10 @@ export default {
       required: true,
     },
   },
-  data: () => ({
-    showMenu: false,
-    menuX: 0,
-    menuY: 0,
-  }),
 
   methods: {
     installAddon(addon) {
       this.$ipcRenderer.send('install-addon', { addon });
-    },
-    showAddonMenu(ev) {
-      this.menuX = ev.clientX;
-      this.menuY = ev.clientY;
-      this.showMenu = true;
     },
   },
 };

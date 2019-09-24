@@ -16,16 +16,30 @@
             flat
             tile
           >
-            <v-card-title>{{game.name}}</v-card-title>
+            <v-card-title>
+              <span
+                @click="startEditName"
+                v-show="!editingName"
+              >{{currentGame.name}}</span>
+              <v-text-field
+                hide-details
+                autofocus
+                solo
+                v-model="gameName"
+                @keydown="submitEditName"
+                @blur="submitEditName"
+                v-show="editingName"
+              ></v-text-field>
+            </v-card-title>
             <v-card-text>
-              <div>游戏位置: {{game.path}}</div>
-              <div>游戏模式: {{gameTypes[game.type]}}</div>
+              <div>游戏位置: {{currentGame.path}}</div>
+              <div>游戏模式: {{gameTypes[currentGame.type]}}</div>
             </v-card-text>
           </v-card>
         </v-tab-item>
 
         <v-tab-item>
-          <addon-manager :game="game"/>
+          <addon-manager/>
         </v-tab-item>
       </v-tabs-items>
     </div>
@@ -33,6 +47,7 @@
 </template>
 
 <script>
+import { mapGetters } from 'vuex';
 import { gameTypes } from '@/utils/constants';
 import AddonManager from '@/components/ManagerPanel/AddonManager.vue';
 
@@ -43,16 +58,38 @@ export default {
     AddonManager,
   },
 
-  props: {
-    game: {
-      type: Object,
-      required: true,
-    },
-  },
-
   data: () => ({
     tab: 0,
     gameTypes,
+    editingName: false,
+    gameName: '',
   }),
+
+  computed: {
+    ...mapGetters([
+      'currentGame',
+    ]),
+  },
+
+  methods: {
+    startEditName() {
+      this.gameName = this.currentGame.name;
+      this.editingName = true;
+    },
+    submitEditName(ev) {
+      if (ev.type === 'keydown' && ev.keyCode === 13) {
+        this.editingName = false;
+        if (this.gameName !== this.currentGame.name) {
+          this.$store.dispatch('renameGameName', { name: this.gameName });
+        }
+      }
+      if (ev.type === 'keydown' && ev.keyCode === 27) {
+        this.editingName = false;
+      }
+      if (ev.type === 'blur') {
+        this.editingName = false;
+      }
+    },
+  },
 };
 </script>

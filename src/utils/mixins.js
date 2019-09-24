@@ -11,12 +11,19 @@ const mixin = {
       if (!addon.file) {
         return this.addonStatusStruct.NO_FILE;
       }
-      const { version } = addon.file;
-      const hasInstalled = addons.find(a => a.id === id);
-      if (hasInstalled) {
-        return hasInstalled.file.version === version ? this.addonStatusStruct.INSTALLED : this.addonStatusStruct.CAN_BE_UPDATE;
+      if (addon.new) {
+        return this.addonStatusStruct.CAN_BE_UPDATE;
       }
-      return this.addonStatusStruct.NOT_INSTALLED;
+
+      if (addons) {
+        const { version } = addon.file;
+        const hasInstalled = addons.find(a => a.id === id);
+        if (hasInstalled) {
+          return hasInstalled.file.version === version ? this.addonStatusStruct.INSTALLED : this.addonStatusStruct.CAN_BE_UPDATE;
+        }
+        return this.addonStatusStruct.NOT_INSTALLED;
+      }
+      return this.addonStatusStruct.NO_UPDATE;
     },
     wait(time) {
       return new Promise((resolve) => {

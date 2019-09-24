@@ -2,7 +2,7 @@
   <div class="app-main">
     <div class="d-flex flex-column fill-height">
       <div class="flex content">
-        <add-game v-if="!games.games.length" :selectedGamePath="selectedGamePath"/>
+        <add-game v-if="!gamesSetting.games.length" :selectedGamePath="selectedGamePath"/>
 
         <div v-else class="d-flex flex-row fill-height">
           <v-navigation-drawer
@@ -28,12 +28,12 @@
               </v-list-item>
 
               <v-list-item
-                v-for="(game, index) in games.games"
+                v-for="(game, index) in gamesSetting.games"
                 :key="`${index}-${game.base}-${game.type}`"
                 link
                 two-line
                 color="primary"
-                :class="{'v-list-item--active': index === games.current}"
+                :class="{'v-list-item--active': index === gamesSetting.current}"
               >
                 <v-list-item-avatar>
                   <v-icon>videogame_asset</v-icon>
@@ -53,7 +53,7 @@
           </v-navigation-drawer>
 
           <div class="flex">
-            <manager-panel :game="games.games[games.current]" v-if="games.current !== null"/>
+            <manager-panel v-if="gamesSetting.current !== null"/>
           </div>
         </div>
       </div>
@@ -62,8 +62,7 @@
 </template>
 
 <script>
-import Store from 'electron-store';
-import { gameTypes } from '@/utils/constants';
+import { mapState } from 'vuex';
 import AddGame from '@/components/AddGame.vue';
 import ManagerPanel from '@/components/ManagerPanel.vue';
 
@@ -76,10 +75,14 @@ export default {
   },
 
   data: () => ({
-    gameTypes,
     selectedGamePath: null,
-    games: { current: null, games: [] },
   }),
+
+  computed: {
+    ...mapState([
+      'gamesSetting',
+    ]),
+  },
 
   methods: {
     onSelectGamePath() {
@@ -91,13 +94,11 @@ export default {
     },
     onInstallAddonDone() {
       this.$ipcRenderer.on('install-addon-done', () => {
-        console.log('addon installed.');
-        this.readGameSetting();
+        this.readGamesSetting();
       });
     },
-    readGameSetting() {
-      const store = new Store();
-      this.games = store.get('gameInstances', { current: null, games: [] });
+    readGamesSetting() {
+      this.$store.dispatch('readGamesSetting');
     },
     openDevtools() {
       this.$ipcRenderer.send('devtools');
@@ -105,6 +106,7 @@ export default {
     onMounted() {
       this.onSelectGamePath();
       this.onInstallAddonDone();
+      this.readGamesSetting();
     },
     onUnmounted() {
       //
@@ -112,7 +114,6 @@ export default {
   },
 
   mounted() {
-    this.readGameSetting();
     this.onMounted();
   },
 

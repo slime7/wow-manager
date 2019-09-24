@@ -44,7 +44,8 @@ const ipcHandler = ipc => ({
     const instances = global.store.get('gameInstances');
     const game = instances.games[instances.current];
     const addonsPath = path.join(game.path, `_${game.type}_`, 'Interface', 'AddOns');
-    download(global.win, addon.file.downloadUrl, {
+    const addonDownloadUrl = addon.new ? addon.new.downloadUrl : addon.file.downloadUrl;
+    download(global.win, addonDownloadUrl, {
       directory: addonsPath,
       filename: addon.file.fileName,
       showBadge: false,
@@ -57,7 +58,10 @@ const ipcHandler = ipc => ({
           fs.unlink(addonFile, () => {});
           const addonInd = game.addons.findIndex(a => a.id === addon.id);
           if (addonInd !== -1) {
-            game.addons[addonInd] = addon;
+            const newAddon = JSON.parse(JSON.stringify(addon));
+            newAddon.file = newAddon.new;
+            delete newAddon.new;
+            game.addons[addonInd] = newAddon;
           } else {
             game.addons.push(addon);
           }

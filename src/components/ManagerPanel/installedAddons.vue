@@ -10,10 +10,10 @@
     </div>
 
     <addon-card
-      v-for="addon in installedAndUpdated"
+      v-for="addon in sortedAddons"
       :key="addon.id"
       :addon="addon"
-      :addonStatus="getAddonStatus(addon, addons)"
+      :addonStatus="getAddonStatus(addon)"
       @contextmenu.native="showAddonMenu($event, addon.id)"
     />
 
@@ -26,7 +26,8 @@
     >
       <v-list>
         <v-list-item disabled>
-          <v-list-item-title>{{menu.show ? addons.find(a => a.id === menu.addonId).name : ''}}
+          <v-list-item-title>
+            {{menu.show ? currentGame.addons.find(a => a.id === menu.addonId).name : ''}}
           </v-list-item-title>
         </v-list-item>
 
@@ -51,6 +52,7 @@
 
 <script>
 import { shell } from 'electron';
+import { mapGetters } from 'vuex';
 import { curseBaseUrl } from '@/utils/constants';
 import { parseAddon } from '@/utils';
 import mixins from '@/utils/mixins';
@@ -65,17 +67,6 @@ export default {
 
   mixins: [mixins],
 
-  props: {
-    addons: {
-      type: Array,
-      required: true,
-    },
-    gameVersion: {
-      type: String,
-      required: true,
-    },
-  },
-
   data: () => ({
     menu: {
       show: false,
@@ -88,16 +79,22 @@ export default {
   }),
 
   computed: {
-    installedAndUpdated() {
-      const addons = JSON.parse(JSON.stringify(this.addons));
-      this.checkUpdateResult.forEach((addon) => {
-        const ind = addons.findIndex(a => a.id === addon.id);
-        if (ind !== -1) {
-          addons[ind] = addon;
+    sortedAddons() {
+      const addons = JSON.parse(JSON.stringify(this.currentGame.addons));
+      return addons.sort((a, b) => {
+        if (a.new && !b.new) {
+          return -1;
         }
+        if (!a.new && b.new) {
+          return 1;
+        }
+        return 0;
       });
-      return addons;
     },
+    ...mapGetters([
+      'currentGame',
+      'currentGameVersion',
+    ]),
   },
 
   methods: {
@@ -109,7 +106,10 @@ export default {
     },
     checkUpdate() {
       this.checking = true;
-      const allUpdatePromise = this.addons.map(addon => new Promise((resolve, reject) => {
+      const allUpdatePromise = this.currentGame.addons.map(addon => new Promise((
+        resolve,
+        reject,
+      ) => {
         fetch(`${curseBaseUrl}${addon.id}`)
           .then(res => res.json())
           .then((res) => {
@@ -122,11 +122,8 @@ export default {
 
       Promise.all(allUpdatePromise)
         .then((results) => {
-          const updateResult = [];
-          results.forEach((addon) => {
-            updateResult.push(parseAddon(addon, this.gameVersion));
-          });
-          this.checkUpdateResult = updateResult;
+          const updateResult = results.map(addon => parseAddon(addon, this.currentGameVersion));
+          this.$store.dispatch('mergeAddonUpdateResult', { updateResult });
         })
         .catch((err) => {
           console.log(err);
@@ -136,7 +133,7 @@ export default {
         });
     },
     openAddonWebsite() {
-      const url = this.addons.find(a => a.id === this.menu.addonId).web;
+      const url = this.currentGame.addons.find(a => a.id === this.menu.addonId).web;
       shell.openExternal(url);
     },
   },
