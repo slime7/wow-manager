@@ -26,7 +26,7 @@ function createWindow() {
   const defaultWin = {
     x: workArea.width / 2 - 200,
     y: workArea.height / 2 - 300,
-    width: 900,
+    width: 960,
     height: 600,
     maximize: false,
   };

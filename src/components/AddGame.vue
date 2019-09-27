@@ -44,6 +44,7 @@
 
             <div class="mb-1">
               <v-btn color="primary" @click="submitGamePath">继续</v-btn>
+              <v-btn class="ml-2" @click="cancelAddGame" v-show="!first">取消</v-btn>
             </div>
           </v-stepper-content>
 
@@ -59,6 +60,7 @@
 
             <div class="mb-1">
               <v-btn color="primary" @click="submitGameType">继续</v-btn>
+              <v-btn class="ml-2" @click="cancelAddGame" v-show="!first">取消</v-btn>
             </div>
           </v-stepper-content>
 
@@ -77,6 +79,7 @@
             <div class="mb-1">
               <v-btn color="primary" @click="submitAddGame">完成</v-btn>
               <v-btn class="ml-2" @click="reset">重新选择</v-btn>
+              <v-btn class="ml-2" @click="cancelAddGame" v-show="!first">取消</v-btn>
             </div>
           </v-stepper-content>
         </v-stepper-items>
@@ -86,8 +89,8 @@
 </template>
 
 <script>
-import Store from 'electron-store';
-import { gameTypes, storeSetting } from '@/utils/constants';
+import { mapState } from 'vuex';
+import { gameTypes } from '@/utils/constants';
 
 export default {
   name: 'AddGame',
@@ -97,6 +100,15 @@ export default {
       validator: prop => typeof prop === 'object' || prop === null,
       required: true,
     },
+    first: {
+      type: Boolean,
+    },
+  },
+
+  computed: {
+    ...mapState([
+      'gamesSetting',
+    ]),
   },
 
   data: () => ({
@@ -105,7 +117,6 @@ export default {
       { text: gameTypes.classic, value: 'classic' },
       { text: gameTypes.retail, value: 'retail' },
     ],
-    gamesStoreOld: null,
     addGameStep: 1,
     gameType: null,
     gameBase: '',
@@ -140,12 +151,14 @@ export default {
         this.gameType = 'classic';
         this.gameBase = this.selectedGamePath.dir;
         this.addGameStep = 3;
+        this.gameInstanceNameGenerator();
         return;
       }
       if (this.selectedGamePath.base === '_retail_') {
         this.gameType = 'retail';
         this.gameBase = this.selectedGamePath.dir;
         this.addGameStep = 3;
+        this.gameInstanceNameGenerator();
         return;
       }
 
@@ -163,22 +176,19 @@ export default {
       }
     },
     submitAddGame() {
-      const store = new Store(storeSetting);
-      const newGames = Object.assign({}, this.gamesStoreOld);
-      newGames.games.push({
+      const game = {
         name: this.gameInstanceName,
         path: this.gameBase,
         type: this.gameType,
         addons: [],
-      });
-      newGames.current = newGames.games.length - 1;
-      store.set('gameInstances', newGames);
-      this.$parent.readGameSetting();
+      };
+      this.$store.dispatch('addNewGame', { game });
+      this.cancelAddGame();
     },
     gameInstanceNameGenerator() {
       const name = `wow ${this.gameTypes[this.gameType]}`;
-      if (this.gamesStoreOld.games.length) {
-        const dup = this.gamesStoreOld.games.find(g => g.name === `${name} 1`);
+      if (this.gamesSetting.games.length) {
+        const dup = this.gamesSetting.games.find(g => g.name === `${name} 1`);
         if (dup) {
           const num = +dup.name.match(/ (\d+)$/)[1];
           this.gameInstanceName = `${name} ${num + 1}`;
@@ -186,10 +196,9 @@ export default {
       }
       this.gameInstanceName = `${name} 1`;
     },
-  },
-  mounted() {
-    const store = new Store(storeSetting);
-    this.gamesStoreOld = store.get('gameInstances', { current: null, games: [] });
+    cancelAddGame() {
+      this.$parent.addNewGame(false);
+    },
   },
 };
 </script>

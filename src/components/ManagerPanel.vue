@@ -32,7 +32,10 @@
               ></v-text-field>
             </v-card-title>
             <v-card-text>
-              <div>游戏位置: {{currentGame.path}}</div>
+              <div>
+                <span>游戏位置: </span>
+                <a @click="openGameFolder">{{currentGame.path}}</a>
+              </div>
               <div>游戏模式: {{gameTypes[currentGame.type]}}</div>
             </v-card-text>
           </v-card>
@@ -47,6 +50,7 @@
 </template>
 
 <script>
+import { shell } from 'electron';
 import { mapGetters } from 'vuex';
 import { gameTypes } from '@/utils/constants';
 import AddonManager from '@/components/ManagerPanel/AddonManager.vue';
@@ -89,6 +93,9 @@ export default {
       if (ev.type === 'blur') {
         this.editingName = false;
       }
+    },
+    openGameFolder() {
+      shell.openExternal(this.currentGame.path);
     },
   },
 };

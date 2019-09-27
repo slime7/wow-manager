@@ -118,6 +118,9 @@ export default new Vuex.Store({
     readGamesSetting({ commit }) {
       const store = new Store(storeSetting);
       const gameInstances = store.get('gameInstances', { current: null, games: [] });
+      if (gameInstances.games.length - 1 > gameInstances.current) {
+        gameInstances.current = gameInstances.games.length - 1;
+      }
       commit('updateGamesSetting', gameInstances);
     },
     mergeAddonUpdateResult({ state, getters, commit }, { updateResult }) {
@@ -168,6 +171,16 @@ export default new Vuex.Store({
     },
     deleteAddon({ commit }, { addonId }) {
       commit('removeAddon', { addonId });
+    },
+    switchGame({ commit }, { gameIndex }) {
+      commit('updateGamesSetting', { current: gameIndex });
+    },
+    addNewGame({ state, commit }, { game }) {
+      commit('pushGame', { game });
+      const len = state.gamesSetting.games.length;
+      commit('updateGamesSetting', { current: len - 1 });
+      const store = new Store(storeSetting);
+      store.set('gameInstances', state.gamesSetting);
     },
   },
 });

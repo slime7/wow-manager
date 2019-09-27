@@ -2,7 +2,11 @@
   <div class="app-main">
     <div class="d-flex flex-column fill-height">
       <div class="flex content">
-        <add-game v-if="!gamesSetting.games.length" :selectedGamePath="selectedGamePath"/>
+        <add-game
+          v-if="!gamesSetting.games.length || addingGame"
+          :selectedGamePath="selectedGamePath"
+          :first="!gamesSetting.games.length"
+        />
 
         <div v-else class="d-flex flex-row fill-height">
           <v-navigation-drawer
@@ -18,7 +22,8 @@
               <v-list-item
                 link
                 color="primary"
-                @click="openDevtools"
+                @click="switchNav(-1)"
+                :class="{'v-list-item--active': dashboardView}"
               >
                 <v-list-item-icon>
                   <v-icon>dashboard</v-icon>
@@ -33,7 +38,8 @@
                 link
                 two-line
                 color="primary"
-                :class="{'v-list-item--active': index === gamesSetting.current}"
+                @click="switchNav(index)"
+                :class="{'v-list-item--active': index === gamesSetting.current && !dashboardView}"
               >
                 <v-list-item-avatar>
                   <v-icon>videogame_asset</v-icon>
@@ -53,7 +59,8 @@
           </v-navigation-drawer>
 
           <div class="flex">
-            <manager-panel v-if="gamesSetting.current !== null"/>
+            <dashboard v-if="dashboardView"/>
+            <manager-panel v-if="!dashboardView && gamesSetting.current !== null"/>
           </div>
         </div>
       </div>
@@ -65,17 +72,21 @@
 import { mapState } from 'vuex';
 import AddGame from '@/components/AddGame.vue';
 import ManagerPanel from '@/components/ManagerPanel.vue';
+import Dashboard from '@/components/dashboard.vue';
 
 export default {
   name: 'AppMain',
 
   components: {
+    Dashboard,
     AddGame,
     ManagerPanel,
   },
 
   data: () => ({
     selectedGamePath: null,
+    dashboardView: false,
+    addingGame: false,
   }),
 
   computed: {
@@ -85,6 +96,19 @@ export default {
   },
 
   methods: {
+    switchNav(nav) {
+      if (nav < 0) {
+        this.dashboardView = true;
+      } else {
+        this.dashboardView = false;
+        if (this.gamesSetting.current !== nav) {
+          this.$store.dispatch('switchGame', { gameIndex: nav });
+        }
+      }
+    },
+    addNewGame(on) {
+      this.addingGame = !!on;
+    },
     onSelectGamePath() {
       this.$ipcRenderer.on('select-game-path', (gamePath) => {
         if (gamePath) {
@@ -113,9 +137,6 @@ export default {
     },
     readGamesSetting() {
       this.$store.dispatch('readGamesSetting');
-    },
-    openDevtools() {
-      this.$ipcRenderer.send('devtools');
     },
     onMounted() {
       this.onSelectGamePath();
