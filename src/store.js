@@ -118,7 +118,7 @@ export default new Vuex.Store({
     readGamesSetting({ commit }) {
       const store = new Store(storeSetting);
       const gameInstances = store.get('gameInstances', { current: null, games: [] });
-      if (gameInstances.games.length - 1 > gameInstances.current) {
+      if (gameInstances.games.length - 1 < gameInstances.current) {
         gameInstances.current = gameInstances.games.length - 1;
       }
       commit('updateGamesSetting', gameInstances);
@@ -174,6 +174,8 @@ export default new Vuex.Store({
     },
     switchGame({ commit }, { gameIndex }) {
       commit('updateGamesSetting', { current: gameIndex });
+      const store = new Store(storeSetting);
+      store.set('gameInstances.current', gameIndex);
     },
     addNewGame({ state, commit }, { game }) {
       commit('pushGame', { game });
