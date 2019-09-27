@@ -1,7 +1,11 @@
 {
   "name": "wow-manager",
   "version": "1.0.1",
-  "private": true,
+  "author": {
+    "name": "Slime7",
+    "email": "slime7@foxmail.com",
+    "url": "https://github.com/slime7"
+  },
   "scripts": {
     "serve": "vue-cli-service electron:serve",
     "build": "vue-cli-service electron:build",
@@ -36,5 +40,6 @@
     "vue-cli-plugin-electron-builder": "^1.4.0",
     "vue-cli-plugin-vuetify": "^0.6.3",
     "vue-template-compiler": "^2.6.10"
-  }
+  },
+  "license": "MIT"
 }
