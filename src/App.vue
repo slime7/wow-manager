@@ -1,5 +1,5 @@
 <template>
-  <v-app fluid id="app">
+  <v-app id="app">
     <v-system-bar fixed app class="system-bar pa-0">
       <v-spacer></v-spacer>
       <window-controls :is-maximize="isMaximize"></window-controls>

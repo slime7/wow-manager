@@ -4,7 +4,8 @@
       v-for="addon in searchResultFormated"
       :key="addon.id"
       :addon="addon"
-      :addonStatus="getAddonStatus(addon, currentGame.addons)"
+      :gamePath="currentGame.path"
+      :gameType="currentGame.type"
     />
   </div>
 </template>
@@ -12,7 +13,6 @@
 <script>
 import { mapGetters } from 'vuex';
 import { parseAddon } from '@/utils';
-import mixins from '@/utils/mixins';
 import AddonCard from '@/components/ManagerPanel/AddonCard.vue';
 
 export default {
@@ -21,8 +21,6 @@ export default {
   components: {
     AddonCard,
   },
-
-  mixins: [mixins],
 
   props: {
     searchResult: {

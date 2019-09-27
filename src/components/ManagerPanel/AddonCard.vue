@@ -3,9 +3,22 @@
     class="addon-card my-2"
   >
     <v-list-item three-line>
-      <v-list-item-avatar tile>
+      <v-list-item-avatar tile v-if="progress < 0">
         <v-img :src="addon.avatar" contain v-if="addon.avatar"></v-img>
         <v-icon v-else>extension</v-icon>
+      </v-list-item-avatar>
+
+      <v-list-item-avatar tile v-else>
+        <v-progress-circular
+          :rotate="-90"
+          :size="40"
+          :value="Math.round(progress * 100)"
+          :width="2"
+          color="primary"
+        >
+          <v-img :src="addon.avatar" contain v-if="addon.avatar" width="24" height="24"></v-img>
+          <v-icon v-else>extension</v-icon>
+        </v-progress-circular>
       </v-list-item-avatar>
 
       <v-list-item-content>
@@ -22,8 +35,8 @@
             small
             outlined
             color="primary"
-            @click.stop="installAddon(addon)"
-            v-show="addon.file && addonStatus === addonStatusStruct.NOT_INSTALLED"
+            @click.stop="installAddon"
+            v-show="progress < 0 && addon.file && status === 'not-installed'"
           >
             安装
           </v-btn>
@@ -32,8 +45,8 @@
             small
             outlined
             color="primary"
-            @click.stop="installAddon(addon)"
-            v-show="addon.file && addonStatus === addonStatusStruct.CAN_BE_UPDATE"
+            @click.stop="installAddon"
+            v-show="progress < 0 && addon.file && status === 'can-be-updated'"
           >
             更新
           </v-btn>
@@ -43,9 +56,14 @@
             outlined
             disabled
             color="primary"
-            v-show="addon.file && addonStatus === addonStatusStruct.INSTALLED"
+            v-show="progress >= 0"
           >
-            已安装
+            <span v-if="progress < 1">
+              {{Math.round(progress * 100)}}%
+            </span>
+            <span v-else>
+              安装中
+            </span>
           </v-btn>
 
           <v-btn
@@ -53,7 +71,7 @@
             outlined
             disabled
             color="primary"
-            v-show="addon.file && addonStatus === addonStatusStruct.NO_UPDATE"
+            v-show="addon.file && status === 'no-update'"
           >
             最新版
           </v-btn>
@@ -86,15 +104,34 @@ export default {
       type: Object,
       required: true,
     },
-    addonStatus: {
-      type: Number,
+    gamePath: {
+      type: String,
+      required: true,
+    },
+    gameType: {
+      type: String,
       required: true,
     },
   },
 
+  computed: {
+    progress() {
+      return this.$store.getters.addonDownloadProgress(this.addon.id);
+    },
+    status() {
+      return this.$store.getters.addonStatus(this.addon);
+    },
+  },
+
   methods: {
-    installAddon(addon) {
-      this.$ipcRenderer.send('install-addon', { addon });
+    installAddon() {
+      const { addon } = this;
+      this.$store.dispatch('installAddon', addon);
+      this.$ipcRenderer.send('install-addon', {
+        addon,
+        gamePath: this.gamePath,
+        gameType: this.gameType,
+      });
     },
   },
 };

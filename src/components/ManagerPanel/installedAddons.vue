@@ -13,7 +13,8 @@
       v-for="addon in sortedAddons"
       :key="addon.id"
       :addon="addon"
-      :addonStatus="getAddonStatus(addon)"
+      :gamePath="currentGame.path"
+      :gameType="currentGame.type"
       @contextmenu.native="showAddonMenu($event, addon.id)"
     />
 
@@ -42,6 +43,7 @@
 
         <v-list-item
           link
+          @click="deleteAddon"
         >
           <v-list-item-title>删除</v-list-item-title>
         </v-list-item>
@@ -55,7 +57,6 @@ import { shell } from 'electron';
 import { mapGetters } from 'vuex';
 import { curseBaseUrl } from '@/utils/constants';
 import { parseAddon } from '@/utils';
-import mixins from '@/utils/mixins';
 import AddonCard from '@/components/ManagerPanel/AddonCard.vue';
 
 export default {
@@ -64,8 +65,6 @@ export default {
   components: {
     AddonCard,
   },
-
-  mixins: [mixins],
 
   data: () => ({
     menu: {
@@ -135,6 +134,14 @@ export default {
     openAddonWebsite() {
       const url = this.currentGame.addons.find(a => a.id === this.menu.addonId).web;
       shell.openExternal(url);
+    },
+    deleteAddon() {
+      const addon = this.currentGame.addons.find(a => a.id === this.menu.addonId);
+      this.$ipcRenderer.send('delete-addon', {
+        addon,
+        gamePath: this.currentGame.path,
+        gameType: this.currentGame.type,
+      });
     },
   },
 };

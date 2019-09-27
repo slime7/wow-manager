@@ -9,7 +9,10 @@ export const addonAvatar = (attachments) => {
   return attachments[0].thumbnailUrl;
 };
 
-export const addonLatestFile = (latestFiles, version) => JSON.parse(JSON.stringify(latestFiles)).reverse()
+export const addonLatestFile = (
+  latestFiles,
+  version,
+) => JSON.parse(JSON.stringify(latestFiles)).reverse()
   .find(f => f.releaseType === 1 && f.gameVersion.indexOf(version) >= 0);
 
 export const parseAddon = (addonRaw, gameVersion) => {

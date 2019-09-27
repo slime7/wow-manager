@@ -92,10 +92,24 @@ export default {
         }
       });
     },
-    onInstallAddonDone() {
-      this.$ipcRenderer.on('install-addon-done', () => {
-        this.readGamesSetting();
+    unSelectGamePath() {
+      this.$ipcRenderer.detach('select-game-path');
+    },
+    onInstallAddonReply() {
+      this.$ipcRenderer.on('install-addon', (reply) => {
+        this.$store.dispatch('installingAddonStateChange', reply);
       });
+    },
+    unInstallAddonReply() {
+      this.$ipcRenderer.detach('install-addon');
+    },
+    onDeleteAddonReply() {
+      this.$ipcRenderer.on('delete-addon', (reply) => {
+        this.$store.dispatch('deleteAddon', reply);
+      });
+    },
+    unDeleteAddonReply() {
+      this.$ipcRenderer.detach('delete-addon');
     },
     readGamesSetting() {
       this.$store.dispatch('readGamesSetting');
@@ -105,11 +119,14 @@ export default {
     },
     onMounted() {
       this.onSelectGamePath();
-      this.onInstallAddonDone();
+      this.onInstallAddonReply();
+      this.onDeleteAddonReply();
       this.readGamesSetting();
     },
     onUnmounted() {
-      //
+      this.unSelectGamePath();
+      this.unInstallAddonReply();
+      this.unDeleteAddonReply();
     },
   },
 
