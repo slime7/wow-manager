@@ -21,6 +21,8 @@ export default new Vuex.Store({
       }
       return downloadingAddon.received / downloadingAddon.total;
     },
+    addonDownloadingCount: state => state.installingAddons
+      .filter(d => ['download-failed', 'extract-failed'].indexOf(d.state) === -1).length,
     addonStatus: state => (addon) => {
       if (!addon.file) {
         return 'no-file';
@@ -172,10 +174,12 @@ export default new Vuex.Store({
     deleteAddon({ commit }, { addonId }) {
       commit('removeAddon', { addonId });
     },
-    switchGame({ commit }, { gameIndex }) {
-      commit('updateGamesSetting', { current: gameIndex });
-      const store = new Store(storeSetting);
-      store.set('gameInstances.current', gameIndex);
+    switchGame({ getters, commit }, { gameIndex }) {
+      if (!getters.addonDownloadingCount) {
+        commit('updateGamesSetting', { current: gameIndex });
+        const store = new Store(storeSetting);
+        store.set('gameInstances.current', gameIndex);
+      }
     },
     addNewGame({ state, commit }, { game }) {
       commit('pushGame', { game });
