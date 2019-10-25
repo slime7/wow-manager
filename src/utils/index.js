@@ -1,3 +1,5 @@
+import fs from 'fs';
+
 export const addonAvatar = (attachments) => {
   if (!attachments.length) {
     return null;
@@ -36,4 +38,21 @@ export const parseAddon = (addonRaw, gameVersion) => {
     };
   }
   return addon;
+};
+
+export const parseConfigWtf = (configFile) => {
+  try {
+    const configString = fs.readFileSync(configFile, 'utf-8');
+    const configObject = {};
+    configString.split('\r\n').forEach((line) => {
+      if (line !== '') {
+        const [, configKey, configValue] = line.split(' ');
+        configObject[configKey] = configValue.replace(/^"(.*)"$/, '$1');
+      }
+    });
+
+    return configObject;
+  } catch (err) {
+    throw err;
+  }
 };

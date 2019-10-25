@@ -4,6 +4,7 @@
       <v-tabs v-model="tab">
         <v-tab>信息</v-tab>
         <v-tab>插件</v-tab>
+        <v-tab>工具</v-tab>
       </v-tabs>
     </div>
 
@@ -44,6 +45,10 @@
         <v-tab-item>
           <addon-manager/>
         </v-tab-item>
+
+        <v-tab-item>
+          <game-tools/>
+        </v-tab-item>
       </v-tabs-items>
     </div>
   </div>
@@ -54,11 +59,13 @@ import { shell } from 'electron';
 import { mapGetters } from 'vuex';
 import { gameTypes } from '@/utils/constants';
 import AddonManager from '@/components/ManagerPanel/AddonManager.vue';
+import GameTools from '@/components/ManagerPanel/GameTools.vue';
 
 export default {
   name: 'ManagerPanel',
 
   components: {
+    GameTools,
     AddonManager,
   },
 
