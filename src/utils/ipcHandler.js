@@ -3,11 +3,24 @@ import path from 'path';
 import fs from 'fs';
 import extract from 'extract-zip';
 import rimraf from 'rimraf';
+import { parseConfigWtf } from './index';
 
 const DEVTOOLS = 'devtools';
 const SELECT_GAME_PATH = 'select-game-path';
 const INSTALL_ADDON = 'install-addon';
 const DELETE_ADDON = 'delete-addon';
+const EDIT_GAME_CONFIG = 'edit-game-config';
+
+const deleteAddon = (addon, gamePath, gameType) => {
+  const addonFolders = addon.file.modules.map(m => m.foldername);
+
+  addonFolders.forEach((addonFolder) => {
+    const folder = path.join(gamePath, `_${gameType}_`, 'Interface', 'AddOns', addonFolder);
+    if (fs.existsSync(folder)) {
+      rimraf.sync(folder);
+    }
+  });
+};
 
 const ipcHandler = ipc => ({
   [DEVTOOLS]() {
@@ -52,24 +65,25 @@ const ipcHandler = ipc => ({
         const savePath = path.join(downloadOption.addonPath, downloadOption.filename);
         downloadOption.savePath = savePath;
         downloadOption.downloadItem.setSavePath(savePath);
-        ipc.sendToClient('install-addon', {
+        ipc.sendToClient(INSTALL_ADDON, {
           state: 'download-start',
           addonId: downloadOption.addonId,
         });
 
         downloadOption.downloadItem.once('done', (doneEvent, state) => {
           if (state === 'completed') {
-            ipc.sendToClient('install-addon', {
+            ipc.sendToClient(INSTALL_ADDON, {
               state: 'download-complate',
               addonId: downloadOption.addonId,
             });
 
+            deleteAddon(addon, gamePath, gameType);
             extract(
               downloadOption.savePath,
               { dir: downloadOption.addonPath },
               (err) => {
                 if (err) {
-                  ipc.sendToClient('install-addon', {
+                  ipc.sendToClient(INSTALL_ADDON, {
                     state: 'extract-failed',
                     addonId: downloadOption.addonId,
                     reason: err,
@@ -77,7 +91,7 @@ const ipcHandler = ipc => ({
                 } else {
                   fs.unlink(downloadOption.savePath, () => {
                   });
-                  ipc.sendToClient('install-addon', {
+                  ipc.sendToClient(INSTALL_ADDON, {
                     state: 'installed',
                     addonId: downloadOption.addonId,
                     addon: downloadOption.addon,
@@ -86,7 +100,7 @@ const ipcHandler = ipc => ({
               },
             );
           } else {
-            ipc.sendToClient('install-addon', {
+            ipc.sendToClient(INSTALL_ADDON, {
               state: 'download-failed',
               addonId: downloadOption.addonId,
               reason: state,
@@ -96,18 +110,18 @@ const ipcHandler = ipc => ({
 
         downloadOption.downloadItem.on('updated', (updateEvent, state) => {
           if (state === 'interrupted') {
-            ipc.sendToClient('install-addon', {
+            ipc.sendToClient(INSTALL_ADDON, {
               state: 'download-interrupted',
               addonId: downloadOption.addonId,
             });
           } else if (state === 'progressing') {
             if (item.isPaused()) {
-              ipc.sendToClient('install-addon', {
+              ipc.sendToClient(INSTALL_ADDON, {
                 state: 'download-paused',
                 addonId: downloadOption.addonId,
               });
             } else {
-              ipc.sendToClient('install-addon', {
+              ipc.sendToClient(INSTALL_ADDON, {
                 state: 'download-progressing',
                 addonId: downloadOption.addonId,
                 received: downloadOption.downloadItem.getReceivedBytes(),
@@ -142,17 +156,26 @@ const ipcHandler = ipc => ({
     global.win.webContents.downloadURL(downloadFile.downloadUrl);
   },
   [DELETE_ADDON](event, { addon, gamePath, gameType }) {
-    const addonFolders = addon.file.modules.map(m => m.foldername);
-
-    addonFolders.forEach((addonFolder) => {
-      const folder = path.join(gamePath, `_${gameType}_`, 'Interface', 'AddOns', addonFolder);
-      if (fs.existsSync(folder)) {
-        rimraf.sync(folder);
-      }
-    });
-    ipc.sendToClient('delete-addon', {
+    deleteAddon(addon, gamePath, gameType);
+    ipc.sendToClient(DELETE_ADDON, {
       addonId: addon.id,
     });
+  },
+  [EDIT_GAME_CONFIG](event, { gameConfig, gamePath, gameType }) {
+    const configFile = path.join(gamePath, `_${gameType}_`, 'WTF', 'Config.wtf');
+    let config;
+    try {
+      config = parseConfigWtf(configFile);
+    } catch (err) {
+      return;
+    }
+
+    if (gameConfig.value === config[gameConfig.key]) {
+      return;
+    }
+
+    const configString = `SET ${gameConfig.key} ${gameConfig.value}\r\n`;
+    fs.appendFileSync(configFile, configString);
   },
   ping() {
     ipc.sendToClient('ping', 'pong');

@@ -21,7 +21,7 @@ protocol.registerSchemesAsPrivileged([{
   privileges: { secure: true, standard: true },
 }]);
 
-function createWindow() {
+function createMainWindow() {
   const { workArea } = screen.getPrimaryDisplay();
   const defaultWin = {
     x: workArea.width / 2 - 200,
@@ -109,7 +109,7 @@ app.on('activate', () => {
   // On macOS it's common to re-create a window in the app when the
   // dock icon is clicked and there are no other windows open.
   if (win === null) {
-    createWindow();
+    createMainWindow();
   }
 });
 
@@ -130,7 +130,7 @@ app.on('ready', async () => {
       console.error('Vue Devtools failed to install:', e.toString());
     }
   }
-  createWindow();
+  createMainWindow();
 });
 
 // Exit cleanly on request from parent process in development mode.

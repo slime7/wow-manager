@@ -13,6 +13,7 @@
           :rotate="-90"
           :size="40"
           :value="Math.round(progress * 100)"
+          :indeterminate="progress === 1"
           :width="2"
           color="primary"
         >
