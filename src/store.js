@@ -171,8 +171,10 @@ export default new Vuex.Store({
         store.set('gameInstances.games', state.gamesSetting.games);
       }
     },
-    deleteAddon({ commit }, { addonId }) {
+    deleteAddon({ state, commit }, { addonId }) {
       commit('removeAddon', { addonId });
+      const store = new Store(storeSetting);
+      store.set('gameInstances.games', state.gamesSetting.games);
     },
     switchGame({ getters, commit }, { gameIndex }) {
       if (!getters.addonDownloadingCount) {
