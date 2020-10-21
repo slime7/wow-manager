@@ -4,8 +4,8 @@ export const gameTypes = {
 };
 
 export const gameVersions = {
-  classic: '1.13.2',
-  retail: '8.2.5',
+  classic: '1.13.5',
+  retail: '9.0.1',
 };
 
 export const storeSetting = {
