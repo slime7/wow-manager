@@ -1,55 +1,54 @@
 <template>
   <div class="window-controls">
-    <div class="d-flex flex-row fill-height">
-      <div class="window-control-btn" @click="appMinimize">
-        <div class="d-flex flex-column justify-center align-center fill-height">
-          <svg width='11' height='11' viewBox='0 0 11 11' fill='none'
-               xmlns='http://www.w3.org/2000/svg'>
-            <path
-              :d='icon.minimize'
-              fill='#000'/>
-          </svg>
-        </div>
+    <div class="d-flex fill-height">
+      <div class="window-control-btn d-flex align-center justify-center fill-height" @click="appMinimize">
+        <svg width='11' height='11' viewBox='0 0 11 11' fill='none'
+             xmlns='http://www.w3.org/2000/svg'>
+          <path
+            :d='icon.minimize'
+            fill='#000' />
+        </svg>
       </div>
 
-      <div class="window-control-btn" v-show="isMaximize" @click="appUnmaximize">
-        <div class="d-flex flex-column justify-center align-center fill-height">
-          <svg width='11' height='11' viewBox='0 0 11 11' fill='none'
-               xmlns='http://www.w3.org/2000/svg'>
-            <path
-              :d='icon.unmaximize'
-              fill='#000'/>
-          </svg>
-        </div>
+      <div class="window-control-btn d-flex align-center justify-center fill-height" v-if="isMaximize"
+           @click="appUnmaximize">
+        <svg width='11' height='11' viewBox='0 0 11 11' fill='none'
+             xmlns='http://www.w3.org/2000/svg'>
+          <path
+            :d='icon.unmaximize'
+            fill='#000' />
+        </svg>
       </div>
 
-      <div class="window-control-btn" v-show="!isMaximize" @click="appMaximize">
-        <div class="d-flex flex-column justify-center align-center fill-height">
-          <svg width='11' height='11' viewBox='0 0 11 11' fill='none'
-               xmlns='http://www.w3.org/2000/svg'>
-            <path
-              :d='icon.maximize'
-              fill='#000'/>
-          </svg>
-        </div>
+      <div class="window-control-btn d-flex align-center justify-center fill-height" v-if="!isMaximize"
+           @click="appMaximize">
+        <svg width='11' height='11' viewBox='0 0 11 11' fill='none'
+             xmlns='http://www.w3.org/2000/svg'>
+          <path
+            :d='icon.maximize'
+            fill='#000' />
+        </svg>
       </div>
 
-      <div class="window-control-btn close" @click="appClose">
-        <div class="d-flex flex-column justify-center align-center fill-height">
-          <svg width='11' height='11' viewBox='0 0 11 11' fill='none'
-               xmlns='http://www.w3.org/2000/svg'>
-            <path
-              :d='icon.close'
-              fill='#000'/>
-          </svg>
-        </div>
+      <div class="window-control-btn close d-flex align-center justify-center fill-height" @click="appClose">
+        <svg width='11' height='11' viewBox='0 0 11 11' fill='none'
+             xmlns='http://www.w3.org/2000/svg'>
+          <path
+            :d='icon.close'
+            fill='#000' />
+        </svg>
       </div>
     </div>
   </div>
 </template>
 
 <script>
-import { remote } from 'electron';
+import {
+  APP_MINIMIZE,
+  APP_MAXIMIZE,
+  APP_UNMAXIMIZE,
+  APP_CLOSE,
+} from '@/utils/ipcConstant';
 
 export default {
   name: 'WindowControls',
@@ -72,38 +71,38 @@ export default {
 
   methods: {
     appMinimize() {
-      remote.getCurrentWindow().minimize();
+      this.$ipcRenderer.send(APP_MINIMIZE);
     },
     appUnmaximize() {
-      remote.getCurrentWindow().unmaximize();
+      this.$ipcRenderer.send(APP_UNMAXIMIZE);
     },
     appMaximize() {
-      remote.getCurrentWindow().maximize();
+      this.$ipcRenderer.send(APP_MAXIMIZE);
     },
     appClose() {
-      remote.getCurrentWindow().close();
+      this.$ipcRenderer.send(APP_CLOSE);
     },
   },
 };
 </script>
 
 <style scoped>
-  .window-control-btn {
-    width: 40px;
-    height: 24px;
-    cursor: default;
-    -webkit-app-region: no-drag;
-  }
+.window-control-btn {
+  width: 40px;
+  height: 24px;
+  cursor: default;
+  -webkit-app-region: no-drag;
+}
 
-  .window-control-btn:hover {
-    background-color: #eee;
-  }
+.window-control-btn:hover {
+  background-color: #eee;
+}
 
-  .window-control-btn.close:hover {
-    background-color: rgba(232, 17, 35, 0.9);
-  }
+.window-control-btn.close:hover {
+  background-color: rgba(232, 17, 35, 0.9);
+}
 
-  .window-control-btn.close:hover path {
-    fill: #fff;
-  }
+.window-control-btn.close:hover path {
+  fill: #fff;
+}
 </style>

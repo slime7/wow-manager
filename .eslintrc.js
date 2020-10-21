@@ -16,20 +16,16 @@ module.exports = {
     'no-param-reassign': [
       'error',
       {
-        'props': true,
-        'ignorePropertyModificationsFor': [
+        props: true,
+        ignorePropertyModificationsFor: [
           'state',
           'acc',
           'e',
         ],
       },
     ],
-    'import/no-extraneous-dependencies': [2, {
-      'ignore':
-        [
-          'electron',
-          'vue-cli-plugin-electron-builder/lib'
-        ]
+    'import/no-extraneous-dependencies': ['error', {
+      devDependencies: true,
     }],
   },
   parserOptions: {

@@ -3,9 +3,15 @@ import path from 'path';
 import fs from 'fs';
 import extract from 'extract-zip';
 import rimraf from 'rimraf';
+import {
+  DEVTOOLS,
+  APP_MAXIMIZE,
+  APP_UNMAXIMIZE,
+  APP_MINIMIZE,
+  APP_CLOSE,
+} from '@/utils/ipcConstant';
 import { parseConfigWtf } from './index';
 
-const DEVTOOLS = 'devtools';
 const SELECT_GAME_PATH = 'select-game-path';
 const INSTALL_ADDON = 'install-addon';
 const DELETE_ADDON = 'delete-addon';
@@ -26,6 +32,27 @@ const ipcHandler = ipc => ({
   [DEVTOOLS]() {
     if (global.win) {
       global.win.webContents.openDevTools();
+    }
+  },
+  [APP_MAXIMIZE]() {
+    if (global.win) {
+      global.win.maximize();
+    }
+  },
+  [APP_UNMAXIMIZE]() {
+    if (global.win) {
+      global.win.unmaximize();
+    }
+  },
+  [APP_MINIMIZE]() {
+    if (global.win) {
+      global.win.minimize();
+    }
+  },
+  [APP_CLOSE]() {
+    if (global.win) {
+      global.win.webContents.closeDevTools();
+      global.win.close();
     }
   },
   async [SELECT_GAME_PATH]() {
