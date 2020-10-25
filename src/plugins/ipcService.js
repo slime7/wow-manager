@@ -19,7 +19,7 @@ ipcService.install = (Vue) => {
       });
     },
     detach: (type) => {
-      const idx = callbackCache.findIndex(v => v.type === type);
+      const idx = callbackCache.findIndex((v) => v.type === type);
       if (idx > -1) {
         callbackCache.splice(idx, 1);
       } else {

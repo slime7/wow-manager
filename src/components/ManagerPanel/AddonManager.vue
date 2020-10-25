@@ -72,7 +72,7 @@ export default {
       this.searchMode = true;
 
       fetch(`${curseBaseUrl}search?gameId=1&gameVersion=${this.currentGameVersion}&searchFilter=${this.search}`)
-        .then(res => res.json())
+        .then((res) => res.json())
         .then((res) => {
           this.searchResult = res;
         })

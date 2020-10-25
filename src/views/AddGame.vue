@@ -1,5 +1,5 @@
 <template>
-  <v-layout align-center justify-center fill-height class="add-game">
+  <v-layout align-center justify-center class="add-game">
     <v-flex xs12 sm9 md8>
       <v-stepper v-model="addGameStep">
         <v-stepper-header>
@@ -66,8 +66,8 @@
 
           <v-stepper-content step="3">
             <div v-if="gameType">
-              <div>{{gameBase}}</div>
-              <div>{{gameTypes[gameType]}}</div>
+              <div>{{ gameBase }}</div>
+              <div>{{ gameTypes[gameType] }}</div>
 
               <v-text-field
                 label="起名"
@@ -95,27 +95,27 @@ import { gameTypes } from '@/utils/constants';
 export default {
   name: 'AddGame',
 
-  props: {
-    selectedGamePath: {
-      validator: prop => typeof prop === 'object' || prop === null,
-      required: true,
-    },
-    first: {
-      type: Boolean,
-    },
-  },
-
   computed: {
     ...mapState([
       'gamesSetting',
     ]),
+    first() {
+      return !this.gamesSetting.games.length;
+    },
   },
 
   data: () => ({
+    selectedGamePath: null,
     gameTypes,
     gameTypeItems: [
-      { text: gameTypes.classic, value: 'classic' },
-      { text: gameTypes.retail, value: 'retail' },
+      {
+        text: gameTypes.classic,
+        value: 'classic',
+      },
+      {
+        text: gameTypes.retail,
+        value: 'retail',
+      },
     ],
     addGameStep: 1,
     gameType: null,
@@ -188,7 +188,7 @@ export default {
     gameInstanceNameGenerator() {
       const name = `wow ${this.gameTypes[this.gameType]}`;
       if (this.gamesSetting.games.length) {
-        const dup = this.gamesSetting.games.find(g => g.name === `${name} 1`);
+        const dup = this.gamesSetting.games.find((g) => g.name === `${name} 1`);
         if (dup) {
           const num = +dup.name.match(/ (\d+)$/)[1];
           this.gameInstanceName = `${name} ${num + 1}`;
@@ -197,8 +197,32 @@ export default {
       this.gameInstanceName = `${name} 1`;
     },
     cancelAddGame() {
-      this.$parent.addNewGame(false);
+      this.$router.go(-1);
     },
+    onSelectGamePath() {
+      this.$ipcRenderer.on('select-game-path', (gamePath) => {
+        if (gamePath) {
+          this.selectedGamePath = gamePath;
+        }
+      });
+    },
+    unSelectGamePath() {
+      this.$ipcRenderer.detach('select-game-path');
+    },
+    onMounted() {
+      this.onSelectGamePath();
+    },
+    onUnmounted() {
+      this.unSelectGamePath();
+    },
+  },
+
+  mounted() {
+    this.onMounted();
+  },
+
+  destroyed() {
+    this.onUnmounted();
   },
 };
 </script>

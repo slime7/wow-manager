@@ -9,7 +9,7 @@ export const gameVersions = {
 };
 
 export const storeSetting = {
-  serialize: value => JSON.stringify(value, null, '  '),
+  serialize: (value) => JSON.stringify(value, null, '  '),
 };
 
 export const curseBaseUrl = 'https://addons-ecs.forgesvc.net/api/v2/addon/';

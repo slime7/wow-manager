@@ -20,7 +20,6 @@ export default class Ipc {
     this.listener.on(chanel, cb);
   }
 
-
   sendMsg(chanel, msgBody) {
     this.sender.send(chanel, msgBody);
   }

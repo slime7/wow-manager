@@ -1,5 +1,5 @@
 <template>
-  <div class="d-flex flex-column fill-height manager-panel">
+  <div class="d-flex flex-column manager-panel">
     <div>
       <v-tabs v-model="tab">
         <v-tab>信息</v-tab>

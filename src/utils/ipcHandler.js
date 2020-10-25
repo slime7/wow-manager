@@ -18,7 +18,7 @@ const DELETE_ADDON = 'delete-addon';
 const EDIT_GAME_CONFIG = 'edit-game-config';
 
 const deleteAddon = (addon, gamePath, gameType) => {
-  const addonFolders = addon.file.modules.map(m => m.foldername);
+  const addonFolders = addon.file.modules.map((m) => m.foldername);
 
   addonFolders.forEach((addonFolder) => {
     const folder = path.join(gamePath, `_${gameType}_`, 'Interface', 'AddOns', addonFolder);
@@ -28,7 +28,7 @@ const deleteAddon = (addon, gamePath, gameType) => {
   });
 };
 
-const ipcHandler = ipc => ({
+const ipcHandler = (ipc) => ({
   [DEVTOOLS]() {
     if (global.win) {
       global.win.webContents.openDevTools();
@@ -87,7 +87,7 @@ const ipcHandler = ipc => ({
       global.session.on('will-download', (downloadEvent, item) => {
         const [downloadUrl] = item.getURLChain();
         const downloadOption = global.downloads
-          .find(d => encodeURI(d.url) === downloadUrl);
+          .find((d) => encodeURI(d.url) === downloadUrl);
         downloadOption.downloadItem = item;
         const savePath = path.join(downloadOption.addonPath, downloadOption.filename);
         downloadOption.savePath = savePath;
@@ -160,7 +160,7 @@ const ipcHandler = ipc => ({
       });
     }
 
-    const isDownloadingInd = global.downloads.findIndex(d => d.addonId === addon.id);
+    const isDownloadingInd = global.downloads.findIndex((d) => d.addonId === addon.id);
     if (isDownloadingInd >= 0) {
       if (global.downloads[isDownloadingInd].downloadItem) {
         global.downloads[isDownloadingInd].downloadItem.cancel();
@@ -173,13 +173,14 @@ const ipcHandler = ipc => ({
       savePath: null,
     };
     const downloadFile = addon.new ? addon.new : addon.file;
-    global.downloads.push(Object.assign({}, defaultDownloadOptions, {
+    global.downloads.push({
+      ...defaultDownloadOptions,
       filename: downloadFile.fileName,
       url: downloadFile.downloadUrl,
       addonPath: path.join(gamePath, `_${gameType}_`, 'Interface', 'AddOns'),
       addonId: addon.id,
       addon,
-    }));
+    });
     global.win.webContents.downloadURL(downloadFile.downloadUrl);
   },
   [DELETE_ADDON](event, { addon, gamePath, gameType }) {

@@ -93,12 +93,8 @@
 </template>
 
 <script>
-import mixins from '@/utils/mixins';
-
 export default {
   name: 'AddonCard',
-
-  mixins: [mixins],
 
   props: {
     addon: {

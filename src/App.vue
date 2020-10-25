@@ -1,53 +1,10 @@
 <template>
-  <v-app id="app">
-    <v-system-bar fixed app class="system-bar pa-0">
-      <v-spacer></v-spacer>
-      <window-controls :is-maximize="isMaximize"></window-controls>
-    </v-system-bar>
-
-    <v-content style="height: 100vh">
-      <app-main/>
-    </v-content>
-  </v-app>
+  <router-view/>
 </template>
 
 <script>
-import WindowControls from '@/components/WindowControls.vue';
-import AppMain from '@/components/AppMain.vue';
-
 export default {
   name: 'app',
-
-  components: {
-    WindowControls,
-    AppMain,
-  },
-
-  data: () => ({
-    isMaximize: false,
-  }),
-
-  methods: {
-    onMaximizeStatusChange() {
-      this.$ipcRenderer.on('set-maximize-status', (maximize) => {
-        this.isMaximize = maximize;
-      });
-    },
-    onMounted() {
-      this.onMaximizeStatusChange();
-    },
-    onUnmounted() {
-      this.$ipcRenderer.detach('set-maximize-status');
-    },
-  },
-
-  mounted() {
-    this.onMounted();
-  },
-
-  destroyed() {
-    this.onUnmounted();
-  },
 };
 </script>
 

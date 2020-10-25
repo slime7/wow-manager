@@ -4,7 +4,7 @@ export const addonAvatar = (attachments) => {
   if (!attachments.length) {
     return null;
   }
-  const defaultAvatar = attachments.find(a => a.isDefault);
+  const defaultAvatar = attachments.find((a) => a.isDefault);
   if (defaultAvatar) {
     return defaultAvatar.url;
   }
@@ -14,8 +14,9 @@ export const addonAvatar = (attachments) => {
 export const addonLatestFile = (
   latestFiles,
   version,
-) => JSON.parse(JSON.stringify(latestFiles)).reverse()
-  .find(f => f.releaseType === 1 && f.gameVersion.indexOf(version) >= 0);
+) => JSON.parse(JSON.stringify(latestFiles))
+  .reverse()
+  .find((f) => f.releaseType === 1 && f.gameVersion.indexOf(version) >= 0);
 
 export const parseAddon = (addonRaw, gameVersion) => {
   const latestFile = addonLatestFile(addonRaw.latestFiles, gameVersion);
@@ -23,7 +24,7 @@ export const parseAddon = (addonRaw, gameVersion) => {
     id: addonRaw.id,
     name: addonRaw.name,
     summary: addonRaw.summary,
-    authors: addonRaw.authors.map(author => author.name),
+    authors: addonRaw.authors.map((author) => author.name),
     avatar: addonAvatar(addonRaw.attachments),
     attachments: addonRaw.attachments,
     web: addonRaw.websiteUrl,
@@ -41,18 +42,15 @@ export const parseAddon = (addonRaw, gameVersion) => {
 };
 
 export const parseConfigWtf = (configFile) => {
-  try {
-    const configString = fs.readFileSync(configFile, 'utf-8');
-    const configObject = {};
-    configString.split('\r\n').forEach((line) => {
+  const configString = fs.readFileSync(configFile, 'utf-8');
+  const configObject = {};
+  configString.split('\r\n')
+    .forEach((line) => {
       if (line !== '') {
         const [, configKey, configValue] = line.split(' ');
         configObject[configKey] = configValue.replace(/^"(.*)"$/, '$1');
       }
     });
 
-    return configObject;
-  } catch (err) {
-    throw err;
-  }
+  return configObject;
 };

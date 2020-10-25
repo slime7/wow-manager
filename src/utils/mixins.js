@@ -17,7 +17,7 @@ const mixin = {
 
       if (addons) {
         const { version } = addon.file;
-        const hasInstalled = addons.find(a => a.id === id);
+        const hasInstalled = addons.find((a) => a.id === id);
         if (hasInstalled) {
           return hasInstalled.file.version === version ? this.addonStatusStruct.INSTALLED : this.addonStatusStruct.CAN_BE_UPDATE;
         }

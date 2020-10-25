@@ -2,6 +2,8 @@ import Vue from 'vue';
 import Vuex from 'vuex';
 import Store from 'electron-store';
 import { storeSetting, gameVersions } from '@/utils/constants';
+import toast from '@/store/moduleToast';
+import dialog from '@/store/moduleDialog';
 
 Vue.use(Vuex);
 
@@ -12,18 +14,18 @@ export default new Vuex.Store({
   },
 
   getters: {
-    currentGame: state => state.gamesSetting.games[state.gamesSetting.current],
+    currentGame: (state) => state.gamesSetting.games[state.gamesSetting.current],
     currentGameVersion: (state, getters) => gameVersions[getters.currentGame.type],
-    addonDownloadProgress: state => (id) => {
-      const downloadingAddon = state.installingAddons.find(a => a.id === id);
+    addonDownloadProgress: (state) => (id) => {
+      const downloadingAddon = state.installingAddons.find((a) => a.id === id);
       if (!downloadingAddon) {
         return -1;
       }
       return downloadingAddon.received / downloadingAddon.total;
     },
-    addonDownloadingCount: state => state.installingAddons
-      .filter(d => ['download-failed', 'extract-failed'].indexOf(d.state) === -1).length,
-    addonStatus: state => (addon) => {
+    addonDownloadingCount: (state) => state.installingAddons
+      .filter((d) => ['download-failed', 'extract-failed'].indexOf(d.state) === -1).length,
+    addonStatus: (state) => (addon) => {
       if (!addon.file) {
         return 'no-file';
       }
@@ -32,7 +34,7 @@ export default new Vuex.Store({
       }
 
       const current = state.gamesSetting.games[state.gamesSetting.current];
-      const installedAddon = current.addons.find(a => a.id === addon.id);
+      const installedAddon = current.addons.find((a) => a.id === addon.id);
       if (installedAddon) {
         return installedAddon.file.version === addon.file.version ? 'no-update' : 'can-be-updated';
       }
@@ -77,14 +79,14 @@ export default new Vuex.Store({
     updateAddon(state, { newAddon }) {
       state.gamesSetting.games[state.gamesSetting.current].addons = [
         ...state.gamesSetting.games[state.gamesSetting.current].addons
-          .filter(a => a.id !== newAddon.id),
+          .filter((a) => a.id !== newAddon.id),
         newAddon,
       ];
     },
     removeAddon(state, { addonId }) {
       state.gamesSetting.games[state.gamesSetting.current].addons = [
         ...state.gamesSetting.games[state.gamesSetting.current].addons
-          .filter(a => a.id !== addonId),
+          .filter((a) => a.id !== addonId),
       ];
     },
     pushInstallingAddon(state, { addonId }) {
@@ -97,7 +99,7 @@ export default new Vuex.Store({
       });
     },
     updateInstallingAddon(state, addonState) {
-      const ind = state.installingAddons.findIndex(a => a.id === addonState.addonId);
+      const ind = state.installingAddons.findIndex((a) => a.id === addonState.addonId);
       state.installingAddons[ind].state = addonState.state;
       if (addonState.reason) {
         state.installingAddons[ind].reason = addonState.reason;
@@ -110,7 +112,7 @@ export default new Vuex.Store({
       }
     },
     removeInstallingAddon(state, { addonId }) {
-      const ind = state.installingAddons.findIndex(a => a.id === addonId);
+      const ind = state.installingAddons.findIndex((a) => a.id === addonId);
       if (ind >= 0) {
         state.installingAddons.splice(ind, 1);
       }
@@ -128,8 +130,8 @@ export default new Vuex.Store({
     mergeAddonUpdateResult({ state, getters, commit }, { updateResult }) {
       let updateCount = 0;
       updateResult.forEach((addon) => {
-        const ind = getters.currentGame.addons.findIndex(a => a.id === addon.id);
-        const newAddon = Object.assign({}, getters.currentGame.addons[ind]);
+        const ind = getters.currentGame.addons.findIndex((a) => a.id === addon.id);
+        const newAddon = { ...getters.currentGame.addons[ind] };
         if (ind !== -1 && addon.file.version !== newAddon.file.version) {
           newAddon.new = addon.file;
           commit('updateAddon', { newAddon });
@@ -150,7 +152,7 @@ export default new Vuex.Store({
       }
     },
     installAddon({ state, commit }, { id }) {
-      const isExists = state.installingAddons.findIndex(a => a.id === id);
+      const isExists = state.installingAddons.findIndex((a) => a.id === id);
       if (isExists >= 0) {
         commit('removeInstallingAddon', { addonId: id });
       }
@@ -190,5 +192,9 @@ export default new Vuex.Store({
       const store = new Store(storeSetting);
       store.set('gameInstances', state.gamesSetting);
     },
+  },
+  modules: {
+    toast,
+    dialog,
   },
 });

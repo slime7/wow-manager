@@ -42,7 +42,7 @@
 import { mapState } from 'vuex';
 
 export default {
-  name: 'dashboard',
+  name: 'Dashboard',
 
   computed: {
     ...mapState([
@@ -55,10 +55,18 @@ export default {
       this.$ipcRenderer.send('devtools');
     },
     gameDetail(gameIndex) {
-      this.$parent.switchNav(gameIndex);
+      this.$store.dispatch('switchGame', { gameIndex });
+      this.$router.push({
+        name: 'ManagerPanel',
+        query: {
+          gameIndex,
+        },
+      });
     },
     addNewGame() {
-      this.$parent.addNewGame(true);
+      this.$router.push({
+        name: 'AddGame',
+      });
     },
   },
 };

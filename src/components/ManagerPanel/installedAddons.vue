@@ -105,12 +105,12 @@ export default {
     },
     checkUpdate() {
       this.checking = true;
-      const allUpdatePromise = this.currentGame.addons.map(addon => new Promise((
+      const allUpdatePromise = this.currentGame.addons.map((addon) => new Promise((
         resolve,
         reject,
       ) => {
         fetch(`${curseBaseUrl}${addon.id}`)
-          .then(res => res.json())
+          .then((res) => res.json())
           .then((res) => {
             resolve(res);
           })
@@ -121,7 +121,7 @@ export default {
 
       Promise.all(allUpdatePromise)
         .then((results) => {
-          const updateResult = results.map(addon => parseAddon(addon, this.currentGameVersion));
+          const updateResult = results.map((addon) => parseAddon(addon, this.currentGameVersion));
           this.$store.dispatch('mergeAddonUpdateResult', { updateResult });
         })
         .catch((err) => {
@@ -132,11 +132,11 @@ export default {
         });
     },
     openAddonWebsite() {
-      const url = this.currentGame.addons.find(a => a.id === this.menu.addonId).web;
+      const url = this.currentGame.addons.find((a) => a.id === this.menu.addonId).web;
       shell.openExternal(url);
     },
     deleteAddon() {
-      const addon = this.currentGame.addons.find(a => a.id === this.menu.addonId);
+      const addon = this.currentGame.addons.find((a) => a.id === this.menu.addonId);
       this.$ipcRenderer.send('delete-addon', {
         addon,
         gamePath: this.currentGame.path,
